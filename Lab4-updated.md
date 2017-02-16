@@ -3,6 +3,21 @@ Lab4
 Jon Beeler
 February 9, 2017
 
+``` r
+setwd("/Users/beelerenator/Documents/Graduate School/MPA Syracuse/DDMII/Lab3 - Shapefiles")
+#unzip( "01-05-2015.zip" )
+
+#file.remove( "01-05-2015.zip" )
+library(maptools)
+library(sp)
+library(devtools)
+library(censusapi)
+library(dplyr)
+library(pander)
+library(maps)
+library(RColorBrewer)
+```
+
 Question 1: How many single family homes are in each neighborhood?
 
 ``` r
@@ -221,7 +236,7 @@ plot(not.single.fam, col="gray80", border=F, main="Single Family Properties Colo
 plot( singlefamily, border=singlefamily$Nhood, col=singlefamily$Nhood, add=T)
 ```
 
-![](Lab4-updated_files/figure-markdown_github/unnamed-chunk-1-1.png)
+![](Lab4-updated_files/figure-markdown_github/unnamed-chunk-2-1.png)
 
 ``` r
 #residential <- subset.singlefam$LandUse == "Single Family" 
@@ -511,7 +526,7 @@ legend( "bottomright", bg="white",
         title="Dollar Value Per Acre") 
 ```
 
-![](Lab4-updated_files/figure-markdown_github/unnamed-chunk-3-1.png)
+![](Lab4-updated_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 ``` r
 #1-8300, 8301-16,600,  16,601-24,900 , 24,901-33,200, 33,201-41500
@@ -843,4 +858,4 @@ legend( "bottomright", bg="white",
         title="Age of Property") 
 ```
 
-![](Lab4-updated_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](Lab4-updated_files/figure-markdown_github/unnamed-chunk-6-1.png)
