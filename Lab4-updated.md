@@ -234,6 +234,12 @@ palette(rainbowcols)
 not.single.fam <- syr[syr$LandUse != "Single Family", ]
 plot(not.single.fam, col="gray80", border=F, main="Single Family Properties Colored by Neighborhood")
 plot( singlefamily, border=singlefamily$Nhood, col=singlefamily$Nhood, add=T)
+legend( "bottomright", bg="white",
+        pch=19, pt.cex=.5, cex=0.35,
+        legend=levels(singlefamily$Nhood), 
+        col=rainbowcols, 
+        box.col="white",
+        title="Neighborhoods") 
 ```
 
 ![](Lab4-updated_files/figure-markdown_github/unnamed-chunk-2-1.png)
