@@ -1,0 +1,130 @@
+---
+title: "Lab5"
+author: "Jon Beeler"
+date: "February 21, 2017"
+output: github_document
+html_document:
+  df_print: paged
+  keep_md: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set( message = F, warning = F)
+
+library(RCurl)
+library(ggmap)
+library(jsonlite)
+library(memisc)
+library(censusapi)
+library(sp)
+library(maps)
+library(maptools)
+library(dplyr)
+
+```
+
+#Creating a "research database" of home values in Syracuse
+1. Start with a dataset of home prices and assets collected from Zillow
+```{r}
+#read in housing data from Zillow
+my.url <- "https://raw.githubusercontent.com/lecy/hedonic-prices/master/Data/Housing%20Price%20In-Class%20Exercise%20(Responses).csv"
+housingdat <- read.csv(my.url, stringsAsFactors=FALSE )
+
+#subset for Street Addresses and Zip Codes
+houses <- housingdat[ , c("Street.Address.of.House","Zip.Code") ]
+
+#Prepare addresses to be geocoded
+houses$Street.Address.of.House <- gsub( ",", "", houses$Street.Address.of.House )
+houses$Street.Address.of.House <- gsub( "\\.", "", houses$Street.Address.of.House )
+addresses <- paste( houses$Street.Address.of.House, "Syracuse, NY", houses$zip, sep=", " )
+head(addresses)
+
+#Geocode addresses
+#lat.long <- geocode( addresses )
+#write.csv(lat.long, file = "lat.lon.csv")
+setwd( "/Users/beelerenator/Documents/Graduate School/MPA Syracuse/DDMII/Jon_Beeler_DDMII_Labs/Lab 5")
+
+lat.long <- read.csv("lat.lon.csv")
+lat.long <- lat.long[ c("lon","lat")]
+
+houses <- cbind(houses, lat.long)
+
+head(houses)
+
+```
+
+2. Add census tracts FIPS ID to each home (spatial join to census tracts)
+
+```{r}
+
+#read in onondoga shapefiles
+setwd( "/Users/beelerenator/Documents/Graduate School/MPA Syracuse/DDMII/Lab3 - Shapefiles")
+
+onondoga <- readShapePoly( fn="tl_2010_36067_tract10", proj4string=CRS("+proj=longlat +datum=WGS84") )
+dat.onondoga <- as.data.frame( onondoga )
+
+#turn lat.long into spatial points and match it with onongoda map
+lat.long <- SpatialPoints(lat.long, proj4string=CRS("+proj=longlat +datum=WGS84") )
+poly.data.matched.to.points <- over(lat.long, onondoga )
+
+#bind dataframes
+houses.data <- cbind( houses, poly.data.matched.to.points )
+
+head(houses.data)
+```
+
+3. Add census data to each home
+
+```{r}
+
+#download census tract data
+censuskey <- "432376ffd1a15d644d4cd2aa0d664a3f3b885726"
+# download acs5 2014 for median fam income, single mother, population, uninsured, insured
+acs5_2014 <- getCensus(name="acs5", vintage=2014, key=censuskey, 
+    vars=c("B01001B_001E", "B01001_001E"), region="tract:*", regionin = "state: 36 + county: 067")
+
+#rename variables
+acs5_2014 <- plyr::rename(acs5_2014, c("B01001B_001E"="Black", "B01001_001E"="total.population"))
+acs5_2014 <- mutate(acs5_2014, Black.Percent = Black/total.population)
+
+#merge housing dataframe from above with census data by CENSUS TRACT
+housing.census.dat <- merge(x=houses.data, y=acs5_2014, by.x="TRACTCE10", by.y="tract",all.x=T)
+
+head(housing.census.dat)
+
+```
+
+4. Aggregate crimes by census tract (spatial join) and add to the dataset
+
+```{r}
+
+#load in crime data
+crime.dat <- read.csv("https://raw.githubusercontent.com/lecy/hedonic-prices/master/Data/crime.lat.lon.csv", stringsAsFactors=FALSE )
+
+
+x.y.coords <- crime.dat[ ,c("lon","lat")]  # extract coordinate columns
+
+#turn lat.lon crime points into scale for shape files and add to onondoga map
+crime <- SpatialPoints( x.y.coords, proj4string=CRS("+proj=longlat +datum=WGS84") )
+identicalCRS( onondoga, crime )  # should be TRUE
+crime.onondoga <- over( crime, onondoga ) 
+
+#turn crime in onondoga into data frame
+crime.onondoga  <- as.data.frame(crime.onondoga)
+
+#count number of crimes in given census tract
+crime.onondoga  <-  as.data.frame(table(crime.onondoga$TRACTCE10))
+crime.onondoga <- plyr::rename(crime.onondoga, c("Var1"="tract", "Freq"="crime"))
+
+#merge housing dataframe with number of crimes by census tract
+housing.census.crime.dat <- merge(x=housing.census.dat, y=crime.onondoga, by.x="TRACTCE10", by.y="tract",all.x=T)
+
+head(housing.census.crime.dat) 
+
+#class(crime.onondoga)
+
+#these <- match(onondoga@data$TRACTCE10,crime.onondoga$tract)
+#onondaga@data$crime <- crime.onondoga$crime[these]
+
+```
+
