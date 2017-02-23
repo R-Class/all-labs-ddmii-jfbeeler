@@ -6,7 +6,7 @@ February 21, 2017
 Creating a "research database" of home values in Syracuse
 =========================================================
 
-1.  Start with a dataset of home prices and assets collected from Zillow
+Start with a dataset of home prices and assets collected from Zillow
 
 ``` r
 #read in housing data from Zillow
@@ -52,7 +52,7 @@ head(houses)
     ## 5         112 Wolcott Ave    13207 -76.18324 43.03210
     ## 6         212 Roberts Ave    13207 -76.17196 43.03111
 
-1.  Add census tracts FIPS ID to each home (spatial join to census tracts)
+Add census tracts FIPS ID to each home (spatial join to census tracts)
 
 ``` r
 #read in onondoga shapefiles
@@ -93,7 +93,7 @@ head(houses.data)
     ## 5        0 +43.0279451 -076.1920648
     ## 6    45948 +43.0272963 -076.1689815
 
-1.  Add census data to each home
+Add census data to each home
 
 ``` r
 #download census tract data
@@ -141,7 +141,7 @@ head(housing.census.dat)
     ## 5    0.06787796
     ## 6    0.17508611
 
-1.  Aggregate crimes by census tract (spatial join) and add to the dataset
+Aggregate crimes by census tract (spatial join) and add to the dataset
 
 ``` r
 #load in crime data

@@ -24,7 +24,7 @@ library(dplyr)
 ```
 
 #Creating a "research database" of home values in Syracuse
-1. Start with a dataset of home prices and assets collected from Zillow
+Start with a dataset of home prices and assets collected from Zillow
 ```{r}
 #read in housing data from Zillow
 my.url <- "https://raw.githubusercontent.com/lecy/hedonic-prices/master/Data/Housing%20Price%20In-Class%20Exercise%20(Responses).csv"
@@ -53,7 +53,7 @@ head(houses)
 
 ```
 
-2. Add census tracts FIPS ID to each home (spatial join to census tracts)
+Add census tracts FIPS ID to each home (spatial join to census tracts)
 
 ```{r}
 
@@ -73,7 +73,7 @@ houses.data <- cbind( houses, poly.data.matched.to.points )
 head(houses.data)
 ```
 
-3. Add census data to each home
+Add census data to each home
 
 ```{r}
 
@@ -94,7 +94,7 @@ head(housing.census.dat)
 
 ```
 
-4. Aggregate crimes by census tract (spatial join) and add to the dataset
+Aggregate crimes by census tract (spatial join) and add to the dataset
 
 ```{r}
 
